@@ -1,9 +1,10 @@
 package servers
 
 import (
-	"context"
 	"cluster"
+	"context"
 	"github.com/go-playground/lars"
+	"strconv"
 	"log"
 )
 
@@ -27,9 +28,23 @@ func Update(context *context.Context) {
 }
 
 func Show(context *context.Context) {
-	value, d := context.Get("cluster")
+	value, _ := context.Get("cluster")
 	c := value.(cluster.Cluster)
-	log.Printf("Get %v -> %v", d, len(c.Servers))
+	param := context.Param("id")
+	var id int64
+	var err error
+	if id, err = strconv.ParseInt(param,10,32); err != nil {
+		log.Print(err)
+		context.Response().WriteHeader(500)
+		return
+	}
+	server := c.Servers[id]
+	if status, err := server.GetStatus(); err != nil {
+		log.Print(err)
+		context.Response().WriteHeader(500)
+	} else {
+		context.JSON(200, status)
+	}
 }
 
 func Destroy(context *context.Context) {

@@ -22,4 +22,3 @@ func CastContext(c lars.Context, handler lars.Handler) {
 	ctx := c.(*Context)
 	h(ctx)
 }
-
