@@ -17,6 +17,7 @@ func Routes(routes lars.IRouteGroup) {
 }
 
 func Index(context *context.Context) {
+
 }
 
 func Create(context *context.Context) {
