@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"server"
 	"time"
+	"translator"
 )
 
 func main() {
@@ -35,6 +36,15 @@ func main() {
 
 	router.RegisterContext(context.NewContext)
 	router.RegisterCustomHandler(func(*context.Context) {}, context.CastContext)
+
+
+	router.Use(func(context lars.Context) {
+		context.Set("cluster", cluster)
+		context.Set("translator", translator.NewTranslator())
+		context.Next()
+	})
+
+	translator.Routes(router.Group("/translator"))
 
 	router.Use(func(context lars.Context) {
 
@@ -60,11 +70,6 @@ func main() {
 
 		logger.Printf("%d [%s] %v %q %v %d\n", code, req.Method, req.RemoteAddr, req.URL, t2.Sub(t1), res.Size())
 
-	})
-
-	router.Use(func(context lars.Context) {
-		context.Set("cluster", cluster)
-		context.Next()
 	})
 
 	servers.Routes(router.Group("/servers"))

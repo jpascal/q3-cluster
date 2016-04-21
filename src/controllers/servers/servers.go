@@ -20,13 +20,13 @@ func Routes(routes lars.IRouteGroup) {
 
 func Index(context *context.Context) {
 	value, _ := context.Get("cluster")
-	c := value.(cluster.Cluster)
+	c := value.(*cluster.Cluster)
 	context.JSON(200, c.Servers)
 }
 
 func Show(context *context.Context) {
 	value, _ := context.Get("cluster")
-	c := value.(cluster.Cluster)
+	c := value.(*cluster.Cluster)
 	param := context.Param("id")
 	var id int64
 	var err error
@@ -44,7 +44,7 @@ func Show(context *context.Context) {
 
 func Status(context *context.Context) {
 	value, _ := context.Get("cluster")
-	c := value.(cluster.Cluster)
+	c := value.(*cluster.Cluster)
 	param := context.Param("id")
 	var id int64
 	var err error
@@ -68,7 +68,7 @@ func Status(context *context.Context) {
 
 func Console(context *context.Context) {
 	value, _ := context.Get("cluster")
-	c := value.(cluster.Cluster)
+	c := value.(*cluster.Cluster)
 	param := context.Param("id")
 	var id int64
 	var err error
@@ -92,7 +92,7 @@ func Console(context *context.Context) {
 
 func Start(context *context.Context) {
 	value, _ := context.Get("cluster")
-	c := value.(cluster.Cluster)
+	c := value.(*cluster.Cluster)
 	param := context.Param("id")
 	var id int64
 	var err error
@@ -111,7 +111,7 @@ func Start(context *context.Context) {
 
 func Stop(context *context.Context) {
 	value, _ := context.Get("cluster")
-	c := value.(cluster.Cluster)
+	c := value.(*cluster.Cluster)
 	param := context.Param("id")
 	var id int64
 	var err error
