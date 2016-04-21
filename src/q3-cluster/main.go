@@ -18,8 +18,8 @@ func main() {
 
 	var cluster cluster.Cluster
 
-	s1 := server.NewServer("localhost", 1)
-	s2 := server.NewServer("localhost", 2)
+	s1 := server.NewServer("localhost", 27961)
+	s2 := server.NewServer("localhost", 27962)
 
 	cluster.AddServer(s1)
 	cluster.AddServer(s2)

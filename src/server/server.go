@@ -52,8 +52,15 @@ func NewServer(address string, port int) *Server {
 
 	server.Instance = exec.Command(config.Config().Cluster.Server, arguments)
 
+	log := config.Config().Cluster.Log
+	log = strings.Replace(log, "$address", server.Address, 1)
+	log = strings.Replace(log, "$port", fmt.Sprint(server.Port), 1)
+
+	stdout, _ := os.OpenFile(log, os.O_APPEND | os.O_CREATE, 0600)
+
 	server.Stdout, _ = server.Instance.StdinPipe()
-	server.Stdin, _ = server.Instance.StdoutPipe()
+	server.Instance.Stdout = stdout
+	//server.Stdin, _ = server.Instance.StdoutPipe()
 	return &server
 }
 
@@ -115,7 +122,7 @@ func (self *Server) GetStatus() (*ServerStatus, error) {
 }
 
 func (self *Server) RemoteConsole(command string) (string, error) {
-	log.Printf("rcon(%s): %s", self.Address, command)
+	self.Logger.Printf("remote command: '%s'", command)
 	buffer, err := self.send([]byte(fmt.Sprintf("\xff\xff\xff\xffrcon %s %s\n", self.Password, command)))
 	if err != nil {
 		return "", err

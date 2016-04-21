@@ -14,6 +14,7 @@ type ApplicationConfig struct {
 	Cluster struct {
 		Server 	  string
 		Arguments string
+		Log		  string
 	}
 }
 
@@ -31,6 +32,7 @@ func Config() *ApplicationConfig {
 		application_config.General.Listen = "0.0.0.0:8080"
 		application_config.Cluster.Server = "./ioq3ded.x86_64"
 		application_config.Cluster.Arguments = "+set net_ip $address +set net_port $port"
+		application_config.Cluster.Log = "server.$address.$port.log"
 
 		if err := gcfg.ReadFileInto(application_config, Flags().ConfigFile); err != nil {
 			log.Print(err)
