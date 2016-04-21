@@ -41,12 +41,10 @@ func Show(context *context.Context) {
 		context.Response().WriteHeader(500)
 		return
 	}
-	server := c.Servers[id+2]
-	if status, err := server.GetStatus(); err != nil {
-		log.Print(err)
-		context.Response().WriteHeader(500)
+	if (id > 0) && id <= int64(len(c.Servers)) {
+		context.JSON(200, c.Servers[id-1])
 	} else {
-		context.JSON(200, status)
+		context.Response().WriteHeader(404)
 	}
 }
 
