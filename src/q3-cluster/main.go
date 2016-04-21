@@ -16,10 +16,10 @@ import (
 
 func main() {
 
-	var cluster cluster.Cluster
+	cluster := cluster.NewCluster()
 
-	s1 := server.NewServer("0.0.0.0", 27961)
-	s2 := server.NewServer("0.0.0.0", 27962)
+	s1 := server.NewServer("127.0.0.1", 27961)
+	s2 := server.NewServer("127.0.0.1", 27963)
 
 	cluster.AddServer(s1)
 	cluster.AddServer(s2)
@@ -38,7 +38,7 @@ func main() {
 
 	router.Use(func(context lars.Context) {
 
-		logger := log.New(os.Stdout, "[web] ", log.Ldate|log.Lmicroseconds)
+		logger := log.New(os.Stdout, "[rest] ", log.Ldate|log.Lmicroseconds)
 
 		t1 := time.Now()
 		defer func() {
@@ -46,6 +46,7 @@ func main() {
 				trace := make([]byte, 1<<16)
 				n := runtime.Stack(trace, true)
 				logger.Printf(" recovering from panic: %+v\nStack Trace:\n %s", err, trace[:n])
+				context.Response().WriteHeader(500)
 				return
 			}
 		}()

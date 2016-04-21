@@ -48,8 +48,8 @@ func NewServer(address string, port int) *Server {
 
 	arguments := config.Config().Cluster.Arguments
 
-	arguments = strings.Replace(arguments, "$address", server.Address, 1)
-	arguments = strings.Replace(arguments, "$port", fmt.Sprint(server.Port), 1)
+	arguments = strings.Replace(arguments, "$address", server.Address, -1)
+	arguments = strings.Replace(arguments, "$port", fmt.Sprint(server.Port), -1)
 
 	server.Instance = exec.Command(config.Config().Cluster.Server, arguments)
 
@@ -130,9 +130,6 @@ func (self *Server) RemoteConsole(command string) (string, error) {
 }
 
 func (self *Server) Startup() error {
-
-	self.Logger.Printf("executing server with password '%s'", self.Password)
-
 	if err := self.Instance.Start(); err != nil {
 		self.Logger.Printf("unable to run: %s", err.Error())
 		return err
@@ -156,17 +153,19 @@ func (self *Server) HasInstance() bool {
 
 func (self *Server) Shutdown() {
 	if self.HasInstance() {
-		self.Logger.Printf("stopping process %v", self.Instance.Process.Pid)
 		self.Instance.Process.Kill()
 		self.Instance.Process = nil
+		self.Logger.Print("shutdown")
+	} else {
+		self.Logger.Print("not started")
 	}
 }
 
 func (self *Server) Console(command string) error {
-	if n, err := self.Stdin.Write([]byte(fmt.Sprintf("%s\n", command))); err != nil {
+	if _, err := self.Stdin.Write([]byte(fmt.Sprintf("%s\n", command))); err != nil {
 		return err
 	} else {
-		self.Logger.Printf("send to server (%d) command: %v", n, command)
+		self.Logger.Printf("command: %v", command)
 	}
 	return nil
 }
