@@ -11,6 +11,7 @@ import (
 	"net"
 	"strings"
 	"strconv"
+	"config"
 )
 
 type ServerStatus struct {
@@ -26,13 +27,13 @@ type ServerStatus struct {
 }
 
 type Server struct {
-	Address  string
-	Port     int
-	Instance *exec.Cmd
-	Stdout   io.WriteCloser
-	Stdin    io.ReadCloser
-	Password string
-	Logger 	 *log.Logger
+	Address  string	`json:"address"`
+	Port     int `json:"port"`
+	Instance *exec.Cmd `json:"-"`
+	Stdout   io.WriteCloser `json:"-"`
+	Stdin    io.ReadCloser `json:"-"`
+	Password string `json:"-"`
+	Logger 	 *log.Logger `json:"-"`
 }
 
 func NewServer(address string, port int) *Server {
@@ -40,19 +41,16 @@ func NewServer(address string, port int) *Server {
 	server.Address = address
 	server.Port = port
 
+	server.Logger = log.New(os.Stdout, fmt.Sprintf("[%v:%v] ",server.Address, server.Port), log.Ldate | log.Lmicroseconds)
+
 	server.Password = randStringRunes(16)
 
-	server.Instance = exec.Command("./test.sh",
-		"+set net_noudp 0",
-		"+set sv_strictAuth 0",
-		"+set dedicated 1",
-		"+set sv_punkbuster 0",
-		"+set sv_lanForceRate 0",
-		fmt.Sprintf("+set net_ip %v", server.Address),
-		fmt.Sprintf("+set net_port %v", server.Port),
-	)
+	arguments := config.Config().Cluster.Arguments
 
-	server.Logger = log.New(os.Stdout, fmt.Sprintf("[%v:%v] ",server.Address, server.Port), log.Ldate | log.Lmicroseconds)
+	arguments = strings.Replace(arguments, "$address", server.Address, 1)
+	arguments = strings.Replace(arguments, "$port", fmt.Sprint(server.Port), 1)
+
+	server.Instance = exec.Command(config.Config().Cluster.Server, arguments)
 
 	server.Stdout, _ = server.Instance.StdinPipe()
 	server.Stdin, _ = server.Instance.StdoutPipe()

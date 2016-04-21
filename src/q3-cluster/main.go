@@ -8,6 +8,10 @@ import (
 	"log"
 	"net/http"
 	"server"
+	"config"
+	"time"
+	"runtime"
+	"os"
 )
 
 func main() {
@@ -34,13 +38,38 @@ func main() {
 	router.RegisterCustomHandler(func(*context.Context) {}, context.CastContext)
 
 	router.Use(func(context lars.Context) {
+
+		logger := log.New(os.Stdout, "[web] ", log.Ldate | log.Lmicroseconds)
+
+		t1 := time.Now()
+		defer func() {
+			if err := recover(); err != nil {
+				trace := make([]byte, 1<<16)
+				n := runtime.Stack(trace, true)
+				logger.Printf(" recovering from panic: %+v\nStack Trace:\n %s", err, trace[:n])
+				return
+			}
+		}()
+		context.Next()
+
+		res := context.Response()
+		req := context.Request()
+		code := res.Status()
+
+		t2 := time.Now()
+
+		logger.Printf("%d [%s] %v %q %v %d\n", code, req.Method, req.RemoteAddr, req.URL, t2.Sub(t1), res.Size())
+
+	})
+
+	router.Use(func(context lars.Context) {
 		context.Set("cluster", cluster)
 		context.Next()
 	})
 
 	servers.Routes(router.Group("/servers"))
 
-	http.ListenAndServe(":3007", router.Serve())
+	http.ListenAndServe(config.Config().General.Listen, router.Serve())
 
 	cluster.Shutdown()
 }

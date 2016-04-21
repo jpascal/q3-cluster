@@ -5,7 +5,7 @@ import (
 )
 
 type Cluster struct {
-	Servers []*server.Server
+	Servers []*server.Server `json:"servers"`
 }
 
 func (self *Cluster) AddServer(server *server.Server) {

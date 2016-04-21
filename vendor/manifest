@@ -2,6 +2,12 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/go-gcfg/gcfg.git",
+			"repository": "https://github.com/go-gcfg/gcfg.git",
+			"revision": "083575c3955c85df16fe9590cceab64d03f5eb6e",
+			"branch": "v1"
+		},
+		{
 			"importpath": "github.com/go-playground/lars",
 			"repository": "https://github.com/go-playground/lars",
 			"revision": "b910f1b83fb97199d37bd64e4feb796dc6de6e85",
@@ -26,6 +32,27 @@
 			"repository": "https://gopkg.in/bsm/ratelimit.v1",
 			"revision": "db14e161995a5177acef654cb0dd785e8ee8bc22",
 			"branch": "v1"
+		},
+		{
+			"importpath": "gopkg.in/gcfg.v1/scanner",
+			"repository": "https://gopkg.in/gcfg.v1",
+			"revision": "083575c3955c85df16fe9590cceab64d03f5eb6e",
+			"branch": "v1",
+			"path": "/scanner"
+		},
+		{
+			"importpath": "gopkg.in/gcfg.v1/token",
+			"repository": "https://gopkg.in/gcfg.v1",
+			"revision": "083575c3955c85df16fe9590cceab64d03f5eb6e",
+			"branch": "v1",
+			"path": "/token"
+		},
+		{
+			"importpath": "gopkg.in/gcfg.v1/types",
+			"repository": "https://gopkg.in/gcfg.v1",
+			"revision": "083575c3955c85df16fe9590cceab64d03f5eb6e",
+			"branch": "v1",
+			"path": "/types"
 		},
 		{
 			"importpath": "gopkg.in/redis.v3",

@@ -1,0 +1,13 @@
+[general]
+; Адрес который будет слушать сервис
+listen = localhost:8080
+[cluster]
+; Программа - сервер, которая будет запускаться в q3-cluster
+; по умолчанию: ./ioq3ded.x86_64
+server = ./ioq3ded.x86_64
+; Аргументы для запуска сервера q3-cluster
+; по умолчанию: +set net_ip $address +set net_port $port
+; Подстановки:
+;  $port - порт который должен слушать сервер
+;  $address - адрес который должен слушать сервер
+arguments = +set net_ip $address +set net_port $port

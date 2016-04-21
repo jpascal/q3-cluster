@@ -17,7 +17,9 @@ func Routes(routes lars.IRouteGroup) {
 }
 
 func Index(context *context.Context) {
-
+	value, _ := context.Get("cluster")
+	c := value.(cluster.Cluster)
+	context.JSON(200, c.Servers)
 }
 
 func Create(context *context.Context) {
@@ -39,7 +41,7 @@ func Show(context *context.Context) {
 		context.Response().WriteHeader(500)
 		return
 	}
-	server := c.Servers[id]
+	server := c.Servers[id+2]
 	if status, err := server.GetStatus(); err != nil {
 		log.Print(err)
 		context.Response().WriteHeader(500)
