@@ -26,10 +26,6 @@ func main() {
 
 	cluster.Startup()
 
-	if err := s1.Console("test"); err != nil {
-		log.Print(err)
-	}
-
 	router := lars.New()
 
 	router.SetRedirectTrailingSlash(false)
