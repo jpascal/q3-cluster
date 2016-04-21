@@ -1,17 +1,18 @@
 package server
 
 import (
+	"bufio"
+	"config"
 	"fmt"
 	"io"
 	"log"
-	"os/exec"
-	"time"
 	"math/rand"
-	"os"
 	"net"
-	"strings"
+	"os"
+	"os/exec"
 	"strconv"
-	"config"
+	"strings"
+	"time"
 )
 
 type ServerStatus struct {
@@ -27,13 +28,13 @@ type ServerStatus struct {
 }
 
 type Server struct {
-	Address  string	`json:"address"`
-	Port     int `json:"port"`
-	Instance *exec.Cmd `json:"-"`
-	Stdout   io.WriteCloser `json:"-"`
-	Stdin    io.ReadCloser `json:"-"`
-	Password string `json:"-"`
-	Logger 	 *log.Logger `json:"-"`
+	Address  string         `json:"address"`
+	Port     int            `json:"port"`
+	Instance *exec.Cmd      `json:"-"`
+	Stdin    io.WriteCloser `json:"-"`
+	Stdout   io.ReadCloser  `json:"-"`
+	Password string         `json:"-"`
+	Logger   *log.Logger    `json:"-"`
 }
 
 func NewServer(address string, port int) *Server {
@@ -41,7 +42,7 @@ func NewServer(address string, port int) *Server {
 	server.Address = address
 	server.Port = port
 
-	server.Logger = log.New(os.Stdout, fmt.Sprintf("[%v:%v] ",server.Address, server.Port), log.Ldate | log.Lmicroseconds)
+	server.Logger = log.New(os.Stdout, fmt.Sprintf("[%v:%v] ", server.Address, server.Port), log.Ldate|log.Lmicroseconds)
 
 	server.Password = randStringRunes(16)
 
@@ -56,18 +57,16 @@ func NewServer(address string, port int) *Server {
 	log = strings.Replace(log, "$address", server.Address, 1)
 	log = strings.Replace(log, "$port", fmt.Sprint(server.Port), 1)
 
-	stdout, _ := os.OpenFile(log, os.O_APPEND | os.O_CREATE, 0600)
+	server.Stdin, _ = server.Instance.StdinPipe()
+	server.Stdout, _ = server.Instance.StdoutPipe()
 
-	server.Stdout, _ = server.Instance.StdinPipe()
-	server.Instance.Stdout = stdout
-	//server.Stdin, _ = server.Instance.StdoutPipe()
 	return &server
 }
 
 func (self *Server) send(data []byte) ([]byte, error) {
 	var connection net.Conn
 	var err error
-	if connection, err = net.Dial("udp", fmt.Sprintf("%v:%v",self.Address,self.Port)); err != nil {
+	if connection, err = net.Dial("udp", fmt.Sprintf("%v:%v", self.Address, self.Port)); err != nil {
 		return nil, err
 	}
 	defer connection.Close()
@@ -86,7 +85,7 @@ func (self *Server) send(data []byte) ([]byte, error) {
 
 func (self *Server) GetStatus() (*ServerStatus, error) {
 	self.Logger.Printf("get status")
-	buffer, err := self.send([]byte("\xff\xff\xff\xffgetstatus"))
+	buffer, err := self.send([]byte("\xff\xff\xff\xffgetstatus\n"))
 	if err != nil {
 		return nil, err
 	}
@@ -130,16 +129,23 @@ func (self *Server) RemoteConsole(command string) (string, error) {
 	return string(buffer), nil
 }
 
-
 func (self *Server) Startup() error {
 
 	self.Logger.Printf("executing server with password '%s'", self.Password)
 
 	if err := self.Instance.Start(); err != nil {
 		self.Logger.Printf("unable to run: %s", err.Error())
-	} else {
-		self.Logger.Printf("started with pid %v", self.Instance.Process.Pid)
+		return err
 	}
+
+	self.Logger.Printf("started with pid %v", self.Instance.Process.Pid)
+
+	scanner := bufio.NewScanner(self.Stdout)
+	go func() {
+		for scanner.Scan() {
+			self.Logger.Printf("console: %v", scanner.Text())
+		}
+	}()
 
 	return nil
 }
@@ -151,13 +157,17 @@ func (self *Server) HasInstance() bool {
 func (self *Server) Shutdown() {
 	if self.HasInstance() {
 		self.Logger.Printf("stopping process %v", self.Instance.Process.Pid)
-		self.Instance.Wait()
+		self.Instance.Process.Kill()
+		self.Instance.Process = nil
 	}
 }
 
 func (self *Server) Console(command string) error {
-	self.Logger.Printf("command: %v", command)
-	self.Stdout.Write([]byte(fmt.Sprintf("%s\n", command)))
+	if n, err := self.Stdin.Write([]byte(fmt.Sprintf("%s\n", command))); err != nil {
+		return err
+	} else {
+		self.Logger.Printf("send to server (%d) command: %v", n, command)
+	}
 	return nil
 }
 

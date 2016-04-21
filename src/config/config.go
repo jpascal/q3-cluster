@@ -12,9 +12,9 @@ type ApplicationConfig struct {
 		Listen string
 	}
 	Cluster struct {
-		Server 	  string
+		Server    string
 		Arguments string
-		Log		  string
+		Log       string
 	}
 }
 

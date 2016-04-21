@@ -2,29 +2,32 @@ package main
 
 import (
 	"cluster"
+	"config"
 	"context"
 	"controllers/servers"
 	"github.com/go-playground/lars"
 	"log"
 	"net/http"
-	"server"
-	"config"
-	"time"
-	"runtime"
 	"os"
+	"runtime"
+	"server"
+	"time"
 )
 
 func main() {
 
 	var cluster cluster.Cluster
 
-	s1 := server.NewServer("localhost", 27961)
-	s2 := server.NewServer("localhost", 27962)
+	s1 := server.NewServer("0.0.0.0", 27961)
+	s2 := server.NewServer("0.0.0.0", 27962)
 
 	cluster.AddServer(s1)
 	cluster.AddServer(s2)
 
 	cluster.Startup()
+
+	s1.Console("map q3dm6")
+	s2.Console("map q3dm6")
 
 	router := lars.New()
 
@@ -35,7 +38,7 @@ func main() {
 
 	router.Use(func(context lars.Context) {
 
-		logger := log.New(os.Stdout, "[web] ", log.Ldate | log.Lmicroseconds)
+		logger := log.New(os.Stdout, "[web] ", log.Ldate|log.Lmicroseconds)
 
 		t1 := time.Now()
 		defer func() {
