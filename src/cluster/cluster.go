@@ -18,6 +18,7 @@ func NewCluster(storage *storage.Storage) *Cluster {
 	var cluster Cluster
 	cluster._logger = log.New(os.Stdout, "[cluster] ", log.Ldate|log.Lmicroseconds)
 	cluster._storage = storage
+	cluster.Servers = make(map[string]*server.Server)
 	return &cluster
 }
 

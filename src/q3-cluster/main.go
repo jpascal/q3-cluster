@@ -13,24 +13,35 @@ import (
 	"storage"
 	"time"
 	"translator"
+	"os/signal"
+	"syscall"
 )
+
+var signals = make(chan os.Signal, 1)
 
 func main() {
 
 	storage := storage.NewStorage()
 	cluster := cluster.NewCluster(storage)
 
-	//s1 := server.NewServer("127.0.0.1", 27961)
-	//s2 := server.NewServer("127.0.0.1", 27963)
-	//
-	//cluster.AddServer(s1)
-	//cluster.AddServer(s2)
+	signal.Notify(signals, syscall.SIGQUIT)
+	signal.Notify(signals, syscall.SIGTERM)
+	signal.Notify(signals, os.Interrupt)
+
+	go func() {
+		for {
+			switch <-signals {
+			case syscall.SIGQUIT, os.Interrupt:
+				cluster.Shutdown()
+				os.Exit(1)
+			case syscall.SIGTERM:
+				os.Exit(1)
+			}
+		}
+	}()
 
 	cluster.Startup()
 
-	//s1.Console("map q3dm6")
-	//s2.Console("map q3dm6")
-	//
 	router := lars.New()
 
 	router.SetRedirectTrailingSlash(false)

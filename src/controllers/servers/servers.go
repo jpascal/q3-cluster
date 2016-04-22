@@ -27,9 +27,9 @@ func Index(context *context.Context) {
 
 	var holder []HolderServer
 
-	for _, server := range cluster.Servers {
+	for key, server := range cluster.Servers {
 		holder = append(holder, HolderServer{
-			Id: "asdf",
+			Id: key,
 			Address: server.Address,
 			Port: server.Port,
 			Started: server.Started,
@@ -55,7 +55,12 @@ func Show(context *context.Context) {
 
 func Status(context *context.Context) {
 	if server := context.Cluster().ServerByID(context.Param("id")); server != nil {
-		context.JSON(200, server.GetStatus())
+		if status, err := server.GetStatus(); err != nil {
+			panic(err)
+		} else {
+			context.JSON(200, status)
+		}
+
 	} else {
 		context.Response().WriteHeader(404)
 	}

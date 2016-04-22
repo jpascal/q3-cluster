@@ -91,7 +91,7 @@ func (self *Server) Startup() error {
 func (self *Server) Shutdown() error {
 	if self.Started {
 		self.Stdin.Close()
-		if err := self.Instance.Process.Kill() err != nil {
+		if err := self.Instance.Process.Kill(); err != nil {
 			return err
 		}
 		self.Started = false
