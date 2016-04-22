@@ -11,17 +11,17 @@ type Context struct {
 	*lars.Ctx
 }
 
-func (self *Context) GetCluster() *cluster.Cluster {
+func (self *Context) Cluster() *cluster.Cluster {
 	value, _ := self.Get("cluster")
 	return value.(*cluster.Cluster)
 }
 
-func (self *Context) GetTranslator() *translator.Translator {
+func (self *Context) Translator() *translator.Translator {
 	value, _ := self.Get("translator")
 	return value.(*translator.Translator)
 }
 
-func (self *Context) GetStorage() *storage.Storage {
+func (self *Context) Storage() *storage.Storage {
 	value, _ := self.Get("storage")
 	return value.(*storage.Storage)
 }

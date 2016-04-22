@@ -88,16 +88,19 @@ func (self *Server) Startup() error {
 	return nil
 }
 
-func (self *Server) Shutdown() {
+func (self *Server) Shutdown() error {
 	if self.Started {
 		self.Stdin.Close()
-		self.Instance.Process.Kill()
+		if err := self.Instance.Process.Kill() err != nil {
+			return err
+		}
 		self.Started = false
 		self.Instance.Wait()
 		self.Logger.Print("shutdown")
 	} else {
 		self.Logger.Print("not started")
 	}
+	return nil
 }
 
 func (self *Server) send(data []byte) ([]byte, error) {
