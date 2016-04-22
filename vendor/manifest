@@ -55,10 +55,10 @@
 			"path": "/types"
 		},
 		{
-			"importpath": "gopkg.in/redis.v3",
-			"repository": "https://gopkg.in/redis.v3",
-			"revision": "b3514029955f38f2a1120b5c3ad59f241d9eecca",
-			"branch": "master"
+			"importpath": "gopkg.in/redis.v4",
+			"repository": "https://gopkg.in/redis.v4",
+			"revision": "889409de38315d22b114fb5980f705e6fa48c6a2",
+			"branch": "v4"
 		}
 	]
 }

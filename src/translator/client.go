@@ -8,9 +8,8 @@ func NewClient(translator *Translator) *Client {
 	return &Client{translator: translator}
 }
 
-
 func (self *Client) Listen() {
-	go func(){
+	go func() {
 		self.translator.Logger.Print("...")
 	}()
 }

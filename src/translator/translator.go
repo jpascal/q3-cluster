@@ -7,7 +7,7 @@ import (
 )
 
 type Translator struct {
-	Logger	*log.Logger
+	Logger *log.Logger
 }
 
 func NewTranslator() *Translator {
@@ -17,7 +17,7 @@ func NewTranslator() *Translator {
 }
 
 func Routes(routes lars.IRouteGroup) {
-	routes.Any("",func(context lars.Context) {
+	routes.Any("", func(context lars.Context) {
 		value, _ := context.Get("translator")
 		translator := value.(*Translator)
 		translator.Logger.Printf("new connection %v", context.Request().RemoteAddr)
@@ -28,5 +28,3 @@ func Routes(routes lars.IRouteGroup) {
 		context.Done()
 	})
 }
-
-

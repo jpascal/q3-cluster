@@ -1,8 +1,8 @@
 package server
 
 import (
-	"bufio"
 	"config"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -30,11 +30,19 @@ type ServerStatus struct {
 type Server struct {
 	Address  string         `json:"address"`
 	Port     int            `json:"port"`
+	Started  bool           `json:"started"`
 	Instance *exec.Cmd      `json:"-"`
 	Stdin    io.WriteCloser `json:"-"`
-	Stdout   io.ReadCloser  `json:"-"`
 	Password string         `json:"-"`
 	Logger   *log.Logger    `json:"-"`
+}
+
+func NewServerFromJSON(data string) (*Server, error) {
+	server := Server{}
+	if err := server.FromJSON(data); err != nil {
+		return nil, err
+	}
+	return NewServer(server.Address, server.Port), nil
 }
 
 func NewServer(address string, port int) *Server {
@@ -46,21 +54,50 @@ func NewServer(address string, port int) *Server {
 
 	server.Password = randStringRunes(16)
 
+	return &server
+}
+
+func (self *Server) ToJSON() (string, error) {
+	buffer, err := json.Marshal(self)
+	return string(buffer), err
+}
+
+func (self *Server) FromJSON(data string) error {
+	return json.Unmarshal([]byte(data), &self)
+}
+
+func (self *Server) Startup() error {
+
 	arguments := config.Config().Cluster.Arguments
 
-	arguments = strings.Replace(arguments, "$address", server.Address, -1)
-	arguments = strings.Replace(arguments, "$port", fmt.Sprint(server.Port), -1)
+	arguments = strings.Replace(arguments, "$address", self.Address, -1)
+	arguments = strings.Replace(arguments, "$port", fmt.Sprint(self.Port), -1)
 
-	server.Instance = exec.Command(config.Config().Cluster.Server, arguments)
+	self.Instance = exec.Command(config.Config().Cluster.Server, arguments)
 
-	log := config.Config().Cluster.Log
-	log = strings.Replace(log, "$address", server.Address, 1)
-	log = strings.Replace(log, "$port", fmt.Sprint(server.Port), 1)
+	self.Stdin, _ = self.Instance.StdinPipe()
 
-	server.Stdin, _ = server.Instance.StdinPipe()
-	server.Stdout, _ = server.Instance.StdoutPipe()
+	if err := self.Instance.Start(); err != nil {
+		self.Logger.Printf("unable to run: %s", err.Error())
+		return err
+	}
 
-	return &server
+	self.Logger.Printf("started with pid %v", self.Instance.Process.Pid)
+	self.Started = true
+
+	return nil
+}
+
+func (self *Server) Shutdown() {
+	if self.Started {
+		self.Stdin.Close()
+		self.Instance.Process.Kill()
+		self.Started = false
+		self.Instance.Wait()
+		self.Logger.Print("shutdown")
+	} else {
+		self.Logger.Print("not started")
+	}
 }
 
 func (self *Server) send(data []byte) ([]byte, error) {
@@ -127,38 +164,6 @@ func (self *Server) RemoteConsole(command string) (string, error) {
 		return "", err
 	}
 	return string(buffer), nil
-}
-
-func (self *Server) Startup() error {
-	if err := self.Instance.Start(); err != nil {
-		self.Logger.Printf("unable to run: %s", err.Error())
-		return err
-	}
-
-	self.Logger.Printf("started with pid %v", self.Instance.Process.Pid)
-
-	scanner := bufio.NewScanner(self.Stdout)
-	go func() {
-		for scanner.Scan() {
-			self.Logger.Printf("console: %v", scanner.Text())
-		}
-	}()
-
-	return nil
-}
-
-func (self *Server) HasInstance() bool {
-	return self.Instance.Process != nil
-}
-
-func (self *Server) Shutdown() {
-	if self.HasInstance() {
-		self.Instance.Process.Kill()
-		self.Instance.Process = nil
-		self.Logger.Print("shutdown")
-	} else {
-		self.Logger.Print("not started")
-	}
 }
 
 func (self *Server) Console(command string) error {

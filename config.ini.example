@@ -11,9 +11,8 @@ server = ./ioq3ded.x86_64
 ;  $port - порт который должен слушать сервер
 ;  $address - адрес который должен слушать сервер
 arguments = +set net_noudp 0 +set sv_strictAuth 0 +set dedicated 1 +set sv_punkbuster 0 +set sv_lanForceRate 0 +set net_ip $address +set net_port $port +map q3dm6
-; Жуонал в который будет записываться то что падает в консоль сервера
-; по умолчанию: +set net_ip $address +set net_port $port
-; Подстановки:
-;  $port - порт который должен слушать сервер
-;  $address - адрес который должен слушать сервер
-log = server.$address.$port.log
+[storage]
+; Параматры для подключения к Redis серверу
+address = 0.0.0.0:6379
+database = 2
+password =

@@ -10,26 +10,27 @@ import (
 	"net/http"
 	"os"
 	"runtime"
-	"server"
+	"storage"
 	"time"
 	"translator"
 )
 
 func main() {
 
-	cluster := cluster.NewCluster()
+	storage := storage.NewStorage()
+	cluster := cluster.NewCluster(storage)
 
-	s1 := server.NewServer("127.0.0.1", 27961)
-	s2 := server.NewServer("127.0.0.1", 27963)
-
-	cluster.AddServer(s1)
-	cluster.AddServer(s2)
+	//s1 := server.NewServer("127.0.0.1", 27961)
+	//s2 := server.NewServer("127.0.0.1", 27963)
+	//
+	//cluster.AddServer(s1)
+	//cluster.AddServer(s2)
 
 	cluster.Startup()
 
-	s1.Console("map q3dm6")
-	s2.Console("map q3dm6")
-
+	//s1.Console("map q3dm6")
+	//s2.Console("map q3dm6")
+	//
 	router := lars.New()
 
 	router.SetRedirectTrailingSlash(false)
@@ -37,9 +38,9 @@ func main() {
 	router.RegisterContext(context.NewContext)
 	router.RegisterCustomHandler(func(*context.Context) {}, context.CastContext)
 
-
 	router.Use(func(context lars.Context) {
 		context.Set("cluster", cluster)
+		context.Set("storage", storage)
 		context.Set("translator", translator.NewTranslator())
 		context.Next()
 	})

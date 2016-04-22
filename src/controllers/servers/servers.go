@@ -25,8 +25,6 @@ func Index(context *context.Context) {
 }
 
 func Show(context *context.Context) {
-	value, _ := context.Get("cluster")
-	c := value.(*cluster.Cluster)
 	param := context.Param("id")
 	var id int64
 	var err error
@@ -35,16 +33,14 @@ func Show(context *context.Context) {
 		context.Response().WriteHeader(500)
 		return
 	}
-	if (id > 0) && id <= int64(len(c.Servers)) {
-		context.JSON(200, c.Servers[id-1])
+	if (id > 0) && id <= int64(len(context.GetCluster().Servers)) {
+		context.JSON(200, context.GetCluster().Servers[id-1])
 	} else {
 		context.Response().WriteHeader(404)
 	}
 }
 
 func Status(context *context.Context) {
-	value, _ := context.Get("cluster")
-	c := value.(*cluster.Cluster)
 	param := context.Param("id")
 	var id int64
 	var err error
@@ -53,9 +49,9 @@ func Status(context *context.Context) {
 		context.Response().WriteHeader(500)
 		return
 	}
-	if (id > 0) && id <= int64(len(c.Servers)) {
+	if (id > 0) && id <= int64(len(context.GetCluster().Servers)) {
 		// Read the content
-		server := c.Servers[id-1]
+		server := context.GetCluster().Servers[id-1]
 		status, d := server.GetStatus()
 		if d != nil {
 			panic(d)
@@ -67,8 +63,6 @@ func Status(context *context.Context) {
 }
 
 func Console(context *context.Context) {
-	value, _ := context.Get("cluster")
-	c := value.(*cluster.Cluster)
 	param := context.Param("id")
 	var id int64
 	var err error
@@ -77,13 +71,13 @@ func Console(context *context.Context) {
 		context.Response().WriteHeader(500)
 		return
 	}
-	if (id > 0) && id <= int64(len(c.Servers)) {
+	if (id > 0) && id <= int64(len(context.GetCluster().Servers)) {
 		// Read the content
 		var buffer []byte
 		if context.Request().Body != nil {
 			buffer, _ = ioutil.ReadAll(context.Request().Body)
 		}
-		server := c.Servers[id-1]
+		server := context.GetCluster().Servers[id-1]
 		server.Console(string(buffer))
 	} else {
 		context.Response().WriteHeader(404)
@@ -91,8 +85,6 @@ func Console(context *context.Context) {
 }
 
 func Start(context *context.Context) {
-	value, _ := context.Get("cluster")
-	c := value.(*cluster.Cluster)
 	param := context.Param("id")
 	var id int64
 	var err error
@@ -101,8 +93,8 @@ func Start(context *context.Context) {
 		context.Response().WriteHeader(500)
 		return
 	}
-	if (id > 0) && id <= int64(len(c.Servers)) {
-		server := c.Servers[id-1]
+	if (id > 0) && id <= int64(len(context.GetCluster().Servers)) {
+		server := context.GetCluster().Servers[id-1]
 		server.Startup()
 	} else {
 		context.Response().WriteHeader(404)
