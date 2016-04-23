@@ -3,3 +3,5 @@ vendor/src
 q3-cluster.iml
 config.ini
 *.log
+.idea
+pkg
