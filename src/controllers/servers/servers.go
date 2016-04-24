@@ -16,6 +16,7 @@ func Routes(routes lars.IRouteGroup) {
 	routes.Get("/:id/status", Status)
 	routes.Post("/:id/console", Console)
 	routes.Post("", Create)
+	routes.Delete("/:id", Delete)
 }
 
 type ServerBaseFields struct {
@@ -31,6 +32,14 @@ type ResponseServer struct {
 
 type RequestServer struct {
 	ServerBaseFields
+}
+
+func Delete(context *context.Context) {
+	if server := context.Cluster().ServerByID(context.Param("id")); server != nil {
+		context.Cluster().DelServer(context.Param("id"))
+	} else {
+		context.Response().WriteHeader(404)
+	}
 }
 
 func Create(context *context.Context) {
