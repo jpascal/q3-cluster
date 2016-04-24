@@ -2,6 +2,13 @@
 	"version": 0,
 	"dependencies": [
 		{
+			"importpath": "github.com/davecgh/go-spew/spew",
+			"repository": "https://github.com/davecgh/go-spew",
+			"revision": "5215b55f46b2b919f50a1df0eaa5886afe4e3b3d",
+			"branch": "master",
+			"path": "/spew"
+		},
+		{
 			"importpath": "github.com/go-gcfg/gcfg.git",
 			"repository": "https://github.com/go-gcfg/gcfg.git",
 			"revision": "083575c3955c85df16fe9590cceab64d03f5eb6e",
@@ -12,6 +19,20 @@
 			"repository": "https://github.com/go-playground/lars",
 			"revision": "b910f1b83fb97199d37bd64e4feb796dc6de6e85",
 			"branch": "master"
+		},
+		{
+			"importpath": "github.com/pmezard/go-difflib/difflib",
+			"repository": "https://github.com/pmezard/go-difflib",
+			"revision": "792786c7400a136282c1664665ae0a8db921c6c2",
+			"branch": "master",
+			"path": "/difflib"
+		},
+		{
+			"importpath": "github.com/stretchr/testify/assert",
+			"repository": "https://github.com/stretchr/testify",
+			"revision": "c5d7a69bf8a2c9c374798160849c071093e41dd1",
+			"branch": "master",
+			"path": "/assert"
 		},
 		{
 			"importpath": "golang.org/x/net/context",

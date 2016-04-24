@@ -2,7 +2,6 @@ package server
 
 import (
 	"config"
-	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -13,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"syscall"
 )
 
 type ServerStatus struct {
@@ -37,14 +37,6 @@ type Server struct {
 	Logger   *log.Logger    `json:"-"`
 }
 
-func NewServerFromJSON(data string) (*Server, error) {
-	server := Server{}
-	if err := server.FromJSON(data); err != nil {
-		return nil, err
-	}
-	return NewServer(server.Address, server.Port), nil
-}
-
 func NewServer(address string, port int) *Server {
 	var server Server
 	server.Address = address
@@ -57,15 +49,6 @@ func NewServer(address string, port int) *Server {
 	return &server
 }
 
-func (self *Server) ToJSON() (string, error) {
-	buffer, err := json.Marshal(self)
-	return string(buffer), err
-}
-
-func (self *Server) FromJSON(data string) error {
-	return json.Unmarshal([]byte(data), &self)
-}
-
 func (self *Server) Startup() error {
 
 	arguments := config.Config().Cluster.Arguments
@@ -74,6 +57,9 @@ func (self *Server) Startup() error {
 	arguments = strings.Replace(arguments, "$port", fmt.Sprint(self.Port), -1)
 
 	self.Instance = exec.Command(config.Config().Cluster.Server, arguments)
+	self.Instance.SysProcAttr = &syscall.SysProcAttr{
+		Setsid: true,
+	}
 
 	self.Stdin, _ = self.Instance.StdinPipe()
 

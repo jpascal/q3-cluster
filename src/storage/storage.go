@@ -18,3 +18,7 @@ func NewStorage() *Storage {
 		}),
 	}
 }
+
+func (self *Storage) Servers() *ServersStore {
+	return GetServersStore(self.Redis)
+}

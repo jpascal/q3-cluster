@@ -2,8 +2,10 @@ package servers
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/go-playground/lars"
 	"io/ioutil"
+	"server"
 )
 
 func Routes(routes lars.IRouteGroup) {
@@ -13,25 +15,59 @@ func Routes(routes lars.IRouteGroup) {
 	routes.Get("/:id/shutdown", Shutdown)
 	routes.Get("/:id/status", Status)
 	routes.Post("/:id/console", Console)
+	routes.Post("", Create)
 }
 
-type HolderServer struct {
-	Id	string		`json:"id"`
-	Address	string	`json:"address"`
-	Port	int		`json:"port"`
-	Started	bool	`json:"started"`
+type ServerBaseFields struct {
+	Address string `json:"address"`
+	Port    int    `json:"port"`
+}
+
+type ResponseServer struct {
+	ServerBaseFields
+	Id      string `json:"id"`
+	Started bool   `json:"started"`
+}
+
+type RequestServer struct {
+	ServerBaseFields
+}
+
+func Create(context *context.Context) {
+	cluster := context.Cluster()
+
+	request := RequestServer{}
+
+	body, err := ioutil.ReadAll(context.Request().Body)
+	if err != nil {
+		panic(err)
+	}
+
+	err = json.Unmarshal(body, &request)
+	if err != nil {
+		panic(err)
+	}
+
+	var id string
+
+	if request.Address == "" || request.Port == 0 {
+		context.Response().WriteHeader(406)
+	} else {
+		id = cluster.AddServer(server.NewServer(request.Address, request.Port))
+	}
+
+	context.JSON(200, ResponseServer{ Id: id, ServerBaseFields:ServerBaseFields{ Address: request.Address, Port: request.Port }})
 }
 
 func Index(context *context.Context) {
 	cluster := context.Cluster()
 
-	var holder []HolderServer
+	var holder []ResponseServer
 
-	for key, server := range cluster.Servers {
-		holder = append(holder, HolderServer{
-			Id: key,
-			Address: server.Address,
-			Port: server.Port,
+	for id, server := range cluster.Servers {
+		holder = append(holder, ResponseServer{
+			ServerBaseFields:ServerBaseFields{ Address: server.Address, Port: server.Port },
+			Id:      id,
 			Started: server.Started,
 		})
 	}
@@ -42,10 +78,9 @@ func Show(context *context.Context) {
 	id := context.Param("id")
 
 	if server := context.Cluster().ServerByID(id); server != nil {
-		context.JSON(200, HolderServer{
-			Id: id,
-			Address: server.Address,
-			Port: server.Port,
+		context.JSON(200, ResponseServer{
+			ServerBaseFields:ServerBaseFields{ Address: server.Address, Port: server.Port },
+			Id:      id,
 			Started: server.Started,
 		})
 	} else {

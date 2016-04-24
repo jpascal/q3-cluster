@@ -60,7 +60,7 @@ func main() {
 
 	router.Use(func(context lars.Context) {
 
-		logger := log.New(os.Stdout, "[rest] ", log.Ldate|log.Lmicroseconds)
+		logger := log.New(os.Stdout, "[http] ", log.Ldate|log.Lmicroseconds)
 
 		t1 := time.Now()
 		defer func() {

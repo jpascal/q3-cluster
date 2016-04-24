@@ -5,34 +5,33 @@ import (
 	"os"
 	"server"
 	"storage"
-	"uuid"
 )
 
 type Cluster struct {
-	_logger  *log.Logger
-	_storage *storage.Storage
-	Servers  map[string]*server.Server `json:"servers"`
+	Logger  *log.Logger
+	Storage *storage.Storage
+	Servers map[string]*server.Server `json:"servers"`
 }
 
 func NewCluster(storage *storage.Storage) *Cluster {
 	var cluster Cluster
-	cluster._logger = log.New(os.Stdout, "[cluster] ", log.Ldate|log.Lmicroseconds)
-	cluster._storage = storage
+	cluster.Logger = log.New(os.Stdout, "[cluster] ", log.Ldate|log.Lmicroseconds)
+	cluster.Storage = storage
 	cluster.Servers = make(map[string]*server.Server)
 	return &cluster
 }
 
 func (self *Cluster) AddServer(server *server.Server) string {
-	id := uuid.NewUUID()
+	id := self.Storage.Servers().Create(storage.ServerRecord{Address: server.Address, Port: server.Port})
 	self.Servers[id] = server
 	return id
 }
 
-
-func (self *Cluster) DelServer(id string) *server.Server {
+func (self *Cluster) DelServer(id string) {
 	server := self.Servers[id]
+	server.Shutdown()
+	self.Storage.Servers().Delete(id)
 	delete(self.Servers, id)
-	return server
 }
 
 func (self *Cluster) ServerByID(id string) *server.Server {
@@ -41,19 +40,12 @@ func (self *Cluster) ServerByID(id string) *server.Server {
 
 func (self *Cluster) Startup() {
 
-	result := self._storage.Redis.Keys("servers:?*")
-
-	for _, key := range result.Val() {
-		data := self._storage.Redis.Get(key)
-
-		if server, err := server.NewServerFromJSON(data.Val()); err != nil {
-			self._logger.Printf("can't load server by key %v because: %s", key, err)
-		} else {
-			self.AddServer(server)
-		}
+	for _, record := range self.Storage.Servers().All() {
+		self.Logger.Printf("loading server from %v", record.Id)
+		self.Servers[record.Id] = server.NewServer(record.Address, record.Port)
 	}
 
-	self._logger.Print("startup all servers")
+	self.Logger.Print("startup all servers")
 	for _, server := range self.Servers {
 		if err := server.Startup(); err != nil {
 			server.Shutdown()
@@ -62,7 +54,7 @@ func (self *Cluster) Startup() {
 }
 
 func (self *Cluster) Shutdown() {
-	self._logger.Print("shutdown all servers")
+	self.Logger.Print("shutdown all servers")
 	for _, server := range self.Servers {
 		server.Shutdown()
 	}
