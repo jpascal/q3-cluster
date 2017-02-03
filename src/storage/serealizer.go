@@ -11,7 +11,7 @@ func Serialize(object interface{}) string {
 }
 
 func Deserialize(data string, object interface{}) {
-	if err := json.Unmarshal([]byte(data),object); err != nil {
+	if err := json.Unmarshal([]byte(data), object); err != nil {
 		panic(err)
 	}
 }

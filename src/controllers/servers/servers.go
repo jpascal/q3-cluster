@@ -65,7 +65,7 @@ func Create(context *context.Context) {
 		id = cluster.AddServer(server.NewServer(request.Address, request.Port))
 	}
 
-	context.JSON(200, ResponseServer{ Id: id, ServerBaseFields:ServerBaseFields{ Address: request.Address, Port: request.Port }})
+	context.JSON(200, ResponseServer{Id: id, ServerBaseFields: ServerBaseFields{Address: request.Address, Port: request.Port }})
 }
 
 func Index(context *context.Context) {
@@ -75,9 +75,9 @@ func Index(context *context.Context) {
 
 	for id, server := range cluster.Servers {
 		holder = append(holder, ResponseServer{
-			ServerBaseFields:ServerBaseFields{ Address: server.Address, Port: server.Port },
-			Id:      id,
-			Started: server.Started,
+			ServerBaseFields: ServerBaseFields{Address: server.Address, Port: server.Port },
+			Id:               id,
+			Started:          server.Started,
 		})
 	}
 	context.JSON(200, holder)
@@ -88,9 +88,9 @@ func Show(context *context.Context) {
 
 	if server := context.Cluster().ServerByID(id); server != nil {
 		context.JSON(200, ResponseServer{
-			ServerBaseFields:ServerBaseFields{ Address: server.Address, Port: server.Port },
-			Id:      id,
-			Started: server.Started,
+			ServerBaseFields: ServerBaseFields{Address: server.Address, Port: server.Port },
+			Id:               id,
+			Started:          server.Started,
 		})
 	} else {
 		context.Response().WriteHeader(404)

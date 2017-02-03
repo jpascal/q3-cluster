@@ -1,9 +1,9 @@
 package uuid
 
 import (
-	"time"
 	"crypto/rand"
 	"fmt"
+	"time"
 )
 
 func NewUUID() string {
