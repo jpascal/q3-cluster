@@ -3,8 +3,8 @@ package servers
 import (
 	"context"
 	"encoding/json"
-	"github.com/go-playground/lars"
 	"io/ioutil"
+	"github.com/go-playground/lars"
 	"server"
 )
 

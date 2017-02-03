@@ -2,9 +2,9 @@ package config
 
 import (
 	"flag"
-	"github.com/go-gcfg/gcfg.git"
 	"log"
 	"os"
+	"github.com/go-gcfg/gcfg.git"
 )
 
 type ApplicationConfig struct {

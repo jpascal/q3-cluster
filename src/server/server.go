@@ -1,7 +1,6 @@
 package server
 
 import (
-	"config"
 	"fmt"
 	"io"
 	"log"
@@ -11,8 +10,9 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
-	"time"
 	"syscall"
+	"time"
+	"config"
 )
 
 type ServerStatus struct {

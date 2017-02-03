@@ -1,20 +1,20 @@
 package main
 
 import (
-	"cluster"
-	"config"
 	"context"
-	"controllers/servers"
-	"github.com/go-playground/lars"
 	"log"
 	"net/http"
 	"os"
-	"runtime"
-	"storage"
-	"time"
-	"translator"
 	"os/signal"
+	"runtime"
 	"syscall"
+	"time"
+	"cluster"
+	"config"
+	"controllers/servers"
+	"github.com/go-playground/lars"
+	"storage"
+	"translator"
 )
 
 var signals = make(chan os.Signal, 1)
