@@ -12,9 +12,9 @@ type Storage struct {
 func NewStorage() *Storage {
 	return &Storage{
 		Redis: redis.NewClient(&redis.Options{
-			Addr:     config.Config().Storage.Address,
-			Password: config.Config().Storage.Password,
-			DB:       config.Config().Storage.Database,
+			Addr:     config.GetConfig().Storage.Address,
+			Password: config.GetConfig().Storage.Password,
+			DB:       config.GetConfig().Storage.Database,
 		}),
 	}
 }
