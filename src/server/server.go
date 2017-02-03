@@ -51,12 +51,12 @@ func NewServer(address string, port int) *Server {
 
 func (self *Server) Startup() error {
 
-	arguments := config.Config().Cluster.Arguments
+	arguments := config.GetConfig().Cluster.Arguments
 
 	arguments = strings.Replace(arguments, "$address", self.Address, -1)
 	arguments = strings.Replace(arguments, "$port", fmt.Sprint(self.Port), -1)
 
-	self.Instance = exec.Command(config.Config().Cluster.Server, arguments)
+	self.Instance = exec.Command(config.GetConfig().Cluster.Server, arguments)
 	self.Instance.SysProcAttr = &syscall.SysProcAttr{
 		Setsid: true,
 	}

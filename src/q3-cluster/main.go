@@ -86,7 +86,7 @@ func main() {
 
 	servers.Routes(router.Group("/servers"))
 
-	http.ListenAndServe(config.Config().General.Listen, router.Serve())
+	http.ListenAndServe(config.GetConfig().General.Listen, router.Serve())
 
 	cluster.Shutdown()
 }

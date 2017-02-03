@@ -29,7 +29,7 @@ type ApplicationFlags struct {
 var application_flags *ApplicationFlags
 var application_config *ApplicationConfig
 
-func Config() *ApplicationConfig {
+func GetConfig() *ApplicationConfig {
 	if application_config == nil {
 		application_config = &ApplicationConfig{}
 
@@ -37,7 +37,7 @@ func Config() *ApplicationConfig {
 		application_config.Cluster.Server = "./ioq3ded.x86_64"
 		application_config.Cluster.Arguments = "+set net_ip $address +set net_port $port"
 
-		if err := gcfg.ReadFileInto(application_config, Flags().ConfigFile); err != nil {
+		if err := gcfg.ReadFileInto(application_config, GetFlags().ConfigFile); err != nil {
 			log.Print(err)
 			os.Exit(1)
 		}
@@ -45,7 +45,7 @@ func Config() *ApplicationConfig {
 	return application_config
 }
 
-func Flags() *ApplicationFlags {
+func GetFlags() *ApplicationFlags {
 	if application_flags == nil {
 		application_flags = &ApplicationFlags{}
 		flag.StringVar(&application_flags.ConfigFile, "c", "config.ini", "config file")
